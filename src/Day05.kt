@@ -9,7 +9,7 @@ fun main() {
         return if (this < b) {
             this .. b
         } else {
-            b .. this
+            (b .. this).reversed()
         }
     }
 
@@ -43,7 +43,30 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return -1
+        val lines = parseInput(input)
+
+        val map = mutableMapOf<Point, Int>()
+
+        for (line in lines) {
+            val xs = (line.start.x towards line.end.x).toList()
+            val ys = (line.start.y towards line.end.y).toList()
+
+            val points = if (xs.size == 1) {
+                ys.map { Point(xs[0], it) }
+            } else if(ys.size == 1) {
+                xs.map { Point(it, ys[0]) }
+            } else if(xs.size == ys.size) {
+                xs.mapIndexed { index, x -> Point(x, ys[index])  }
+            } else {
+                throw IllegalStateException("Not horizontal, vertical or 45 degree diagonal")
+            }
+
+            for (p in points) {
+                map.compute(p) { _, v -> (v ?: 0) +1 }
+            }
+        }
+
+        return map.values.count { it >= 2 }
     }
 
     // test if implementation meets criteria from the description, like:
@@ -53,9 +76,9 @@ fun main() {
     println("test output1: $testOutput1")
     check(testOutput1 == 5)
 
-    //val testOutput2 = part2(testInput)
-    //println("test output2: $testOutput2")
-    //check(testOutput2 == -1)
+    val testOutput2 = part2(testInput)
+    println("test output2: $testOutput2")
+    check(testOutput2 == 12)
 
     val input = readInput("Day05")
     println("output part1: ${part1(input)}")
