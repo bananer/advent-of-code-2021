@@ -72,7 +72,7 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>): Int {
+    fun parseInput(input: List<String>): Pair<List<Int>, List<Board>> {
         val numbers = input[0].split(",").map { Integer.parseInt(it) }
 
         var pos = 1
@@ -82,7 +82,12 @@ fun main() {
             pos += boardSize + 1
         }
 
-        //
+        return Pair(numbers, boards)
+    }
+
+    fun part1(input: List<String>): Int {
+        val (numbers, boards) = parseInput(input)
+
         for (n in numbers) {
             for (b in boards) {
                 b.numberDrawn(n)
@@ -96,14 +101,33 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val (numbers, boards) = parseInput(input)
+
+        val boardsLeft = boards.toMutableList()
+
+        for (n in numbers) {
+            for (b in boardsLeft.toList()) {
+                b.numberDrawn(n)
+                if (b.win) {
+                    if (boardsLeft.size == 1) {
+                        return b.sumOfUnmarked() * n
+                    }
+                    boardsLeft.remove(b)
+                }
+            }
+        }
+
+        throw IllegalStateException("No board won")
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day04_test")
-    val testOutput = part1(testInput)
-    println("test output: $testOutput")
-    check(testOutput == 4512)
+    val testOutput1 = part1(testInput)
+    check(testOutput1 == 4512)
+    println("test output1: $testOutput1")
+    val testOutput2 = part2(testInput)
+    println("test output2: $testOutput2")
+    check(testOutput2 == 1924)
 
     val input = readInput("Day04")
     println("output part1: ${part1(input)}")
