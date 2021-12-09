@@ -1,5 +1,3 @@
-import java.util.stream.IntStream
-
 fun main() {
 
     class Field(
@@ -29,7 +27,7 @@ fun main() {
 
         private fun checkWin() {
             for (x in 0 until boardSize) {
-                if (IntStream.range(0, boardSize).allMatch { y ->
+                if ((0 until boardSize).all { y ->
                         fields[x][y].checked
                     }) {
                     win = true
@@ -38,7 +36,7 @@ fun main() {
 
             }
             for (y in 0 until boardSize) {
-                if (IntStream.range(0, boardSize).allMatch { x ->
+                if ((0 until boardSize).all { x ->
                         fields[x][y].checked
                     }) {
                     win = true
