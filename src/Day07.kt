@@ -13,8 +13,21 @@ fun main() {
         return numbers.sumOf { (it - target).absoluteValue }
     }
 
+
     fun part2(input: List<String>): Int {
-        return input.size
+        val numbers = input[0].split(",")
+            .map { it.toInt() }
+
+        val min = numbers.minOrNull()!!
+        val max = numbers.maxOrNull()!!
+
+        // actual crab movement cost
+        fun gaussSum(n: Int) = (n * (n+1))/2
+
+        // brute force, still efficient enough...
+        return (min..max).minOf { target ->
+            numbers.sumOf { gaussSum((it - target).absoluteValue) }
+        }
     }
 
     val testInput = readInput("Day07_test")
@@ -25,7 +38,7 @@ fun main() {
 
     val testOutput2 = part2(testInput)
     println("test output2: $testOutput2")
-    //check(testOutput2 == -1)
+    check(testOutput2 == 168)
 
     val input = readInput("Day07")
     println("output part1: ${part1(input)}")
