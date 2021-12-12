@@ -40,7 +40,7 @@ fun Heightmap.coordinates(): Iterable<Pair<Int, Int>> {
             private var y = 0
 
             override fun hasNext(): Boolean {
-                return y < height -1 || x < width -1
+                return y < height - 1 || x < width - 1
             }
 
             override fun next(): Pair<Int, Int> {
@@ -63,7 +63,6 @@ fun Heightmap.riskLevel(x: Int, y: Int) = this.get(x, y) + 1
 
 fun Heightmap.lowPointsRiskLevelSum() = lowPoints().sumOf { (x, y) -> this.riskLevel(x, y) }
 
-
 fun main() {
 
     fun parseInput(input: List<String>): Heightmap = input
@@ -80,7 +79,44 @@ fun main() {
 
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val heightmap = parseInput(input)
+        val coordinates = heightmap.coordinates()
+            .filter { (x, y) -> heightmap.get(x, y) < 9 }
+            .toMutableSet()
+
+        val basins = mutableListOf<Set<Pair<Int, Int>>>()
+
+        while (coordinates.isNotEmpty()) {
+
+            // start with any point
+            val point = coordinates.first()
+
+            val basin = mutableSetOf(point)
+
+            while(true) {
+                val basinExpansion = basin.flatMap { (x, y) -> heightmap.getAdjacentCoordinates(x, y) }
+                    .filter { (x, y) -> heightmap.get(x, y) < 9 }
+                    .filter { !basin.contains(it) }
+                    .toList()
+
+                if (basinExpansion.isEmpty()) {
+                    break
+                }
+                else {
+                    basinExpansion.forEach {
+                        basin.add(it)
+                    }
+                }
+            }
+
+            basins.add(basin)
+            coordinates.removeAll(basin)
+        }
+
+        return basins.sortedByDescending { it.size }
+            .subList(0, 3)
+            .map { it.size }
+            .reduce { acc, i -> acc * i  }
     }
 
     // test if implementation meets criteria from the description, like:
@@ -92,7 +128,7 @@ fun main() {
 
     val testOutput2 = part2(testInput)
     println("test output2: $testOutput2")
-    //check(testOutput2 == -1)
+    check(testOutput2 == 1134)
 
     val input = readInput("Day09")
     println("output part1: ${part1(input)}")
