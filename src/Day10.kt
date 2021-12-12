@@ -2,7 +2,7 @@ import java.util.*
 
 fun main() {
 
-    fun syntaxErrorScore(c: Char): Int = when(c) {
+    fun syntaxErrorScore(c: Char): Int = when (c) {
         ')' -> 3
         ']' -> 57
         '}' -> 1197
@@ -36,8 +36,63 @@ fun main() {
         }
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+
+    fun autoCompleteScore(s: String): Long {
+        var score = 0L
+        s.forEach { c ->
+            score *= 5L
+            score += when (c) {
+                ')' -> 1L
+                ']' -> 2L
+                '}' -> 3L
+                '>' -> 4L
+                else -> throw IllegalArgumentException()
+            }
+        }
+        return score
+    }
+
+
+    fun part2(input: List<String>): Long {
+        val completions = input.map {
+            val stack = Stack<Char>()
+
+            for (c in it) {
+                val valid = when (c) {
+                    '(', '[', '{', '<' -> {
+                        stack.push(c)
+                        true
+                    }
+                    ')' -> stack.pop() == '('
+                    ']' -> stack.pop() == '['
+                    '}' -> stack.pop() == '{'
+                    '>' -> stack.pop() == '<'
+                    else -> throw IllegalArgumentException()
+                }
+                if (!valid) {
+                    return@map ""
+                }
+            }
+
+            return@map stack.reversed()
+                .map { c ->
+                    when (c) {
+                        '(' -> ')'
+                        '[' -> ']'
+                        '{' -> '}'
+                        '<' -> '>'
+                        else -> throw IllegalStateException()
+                    }
+                }
+                .joinToString("")
+        }
+
+        val completionsScores = completions
+            .filter { it.isNotEmpty() }
+            .map { autoCompleteScore(it) }
+            .sorted()
+
+        return completionsScores[completionsScores.size / 2]
     }
 
     // test if implementation meets criteria from the description, like:
@@ -49,7 +104,7 @@ fun main() {
 
     val testOutput2 = part2(testInput)
     println("test output2: $testOutput2")
-    //check(testOutput2 == -1)
+    check(testOutput2 == 288957L)
 
     val input = readInput("Day10")
     println("output part1: ${part1(input)}")
