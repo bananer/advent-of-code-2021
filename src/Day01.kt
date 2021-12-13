@@ -15,13 +15,21 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val numbers = input.map { it.toInt() }
+
+        return (3 until numbers.size).count { i ->
+            val prev = numbers.subList(i - 3, i).sum()
+            val curr = numbers.subList(i - 2, i + 1).sum()
+            curr > prev
+        }
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day01_test")
-    val testOutput = part1(testInput)
-    check(testOutput == 7)
+    val testOutput1 = part1(testInput)
+    check(testOutput1 == 7)
+    val testOutput2 = part2(testInput)
+    check(testOutput2 == 5)
 
     val input = readInput("Day01")
     println(part1(input))
